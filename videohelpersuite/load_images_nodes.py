@@ -118,7 +118,9 @@ def load_images(directory: str, image_load_cap: int = 0, skip_first_images: int 
         raise FileNotFoundError(f"No images could be loaded from directory '{directory}'.")
 
     dir_files = get_sorted_dir_files_from_directory(directory, skip_first_images, select_every_nth, FolderOfImages.IMG_EXTENSIONS)
-    return images, masks, images.size(0), dir_files, [os.path.basename(f) for f in dir_files]
+    if image_load_cap > 0:
+        dir_files = dir_files[:image_load_cap]
+    return images, masks, images.size(0), dir_files, [os.path.basename(f) for f in dir_files[:len(images)]]
 
 class LoadImagesFromDirectoryUpload:
     @classmethod
