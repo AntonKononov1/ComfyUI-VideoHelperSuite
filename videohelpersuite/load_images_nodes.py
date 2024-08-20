@@ -116,13 +116,15 @@ def load_images(directory: str, image_load_cap: int = 0, skip_first_images: int 
         masks = torch.zeros((images.size(0), 64, 64), dtype=torch.float32, device="cpu")
     if len(images) == 0:
         raise FileNotFoundError(f"No images could be loaded from directory '{directory}'.")
-    return images, masks, images.size(0)
+
+    dir_files = get_sorted_dir_files_from_directory(directory, skip_first_images, select_every_nth, FolderOfImages.IMG_EXTENSIONS)
+    return images, masks, images.size(0), dir_files
 
 class LoadImagesFromDirectoryUpload:
     @classmethod
     def INPUT_TYPES(s):
         input_dir = folder_paths.get_input_directory()
-        directories = []
+        directories = [""]  # AK: Append empty path for %input_dir%
         for item in os.listdir(input_dir):
             if not os.path.isfile(os.path.join(input_dir, item)) and item != "clipspace":
                 directories.append(item)
@@ -141,8 +143,8 @@ class LoadImagesFromDirectoryUpload:
             },
         }
     
-    RETURN_TYPES = ("IMAGE", "MASK", "INT")
-    RETURN_NAMES = ("IMAGE", "MASK", "frame_count")
+    RETURN_TYPES = ("IMAGE", "MASK", "INT", "STRING_ARRAY")
+    RETURN_NAMES = ("IMAGE", "MASK", "frame_count", "image_paths")
     FUNCTION = "load_images"
 
     CATEGORY = "Video Helper Suite 🎥🅥🅗🅢"
@@ -180,8 +182,8 @@ class LoadImagesFromDirectoryPath:
             },
         }
     
-    RETURN_TYPES = ("IMAGE", "MASK", "INT")
-    RETURN_NAMES = ("IMAGE", "MASK", "frame_count")
+    RETURN_TYPES = ("IMAGE", "MASK", "INT", "STRING_ARRAY")
+    RETURN_NAMES = ("IMAGE", "MASK", "frame_count", "image_paths")
     FUNCTION = "load_images"
 
     CATEGORY = "Video Helper Suite 🎥🅥🅗🅢"
